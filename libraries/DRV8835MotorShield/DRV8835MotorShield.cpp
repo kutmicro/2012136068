@@ -1,43 +1,4 @@
-#ifndef DRV8835MotorShield_h
-#define DRV8835MotorShield_h
-
-#if defined(__AVR_ATmega168__) || defined(__AVR_ATmega328P__) || defined (__AVR_ATmega32U4__)
-#define DRV8835MOTORSHIELD_USE_20KHZ_PWM
-#endif
-
-#include <Arduino.h>
-
-class DRV8835MotorShield
-{
-  public:
-    static void setM1Speed(int speed);
-    static void setM2Speed(int speed);
-    static void setSpeeds(int m1Speed, int m2Speed);
-    static void flipM1(boolean flip);
-    static void flipM2(boolean flip);
-
-  private:
-    static void initPinsAndMaybeTimer();
-    static const unsigned char _M1DIR;
-    static const unsigned char _M2DIR;
-    static const unsigned char _M1PWM;
-    static const unsigned char _M2PWM;
-    static boolean _flipM1;
-    static boolean _flipM2;
-
-    static inline void init()
-    {
-      static boolean initialized = false;
-
-      if (!initialized)
-      {
-        initialized = true;
-        initPinsAndMaybeTimer();
-      }
-    }
-};
-#endif
-
+#include "DRV8835MotorShield.h"
 const unsigned char DRV8835MotorShield::_M1DIR = 7;
 const unsigned char DRV8835MotorShield::_M2DIR = 8;
 const unsigned char DRV8835MotorShield::_M1PWM = 9;
@@ -50,7 +11,7 @@ void DRV8835MotorShield::initPinsAndMaybeTimer()
   // Initialize the pin states used by the motor driver shield
   // digitalWrite is called before and after setting pinMode.
   // It called before pinMode to handle the case where the board
-  // is using an ATmega AVR to avoid ever driving the pin high,
+  // is using an ATmega AVR to avoid ever driving the pin high, 
   // even for a short time.
   // It is called after pinMode to handle the case where the board
   // is based on the Atmel SAM3X8E ARM Cortex-M3 CPU, like the Arduino
@@ -88,22 +49,22 @@ void DRV8835MotorShield::initPinsAndMaybeTimer()
 void DRV8835MotorShield::setM1Speed(int speed)
 {
   init(); // initialize if necessary
-
+    
   boolean reverse = 0;
-
+  
   if (speed < 0)
   {
     speed = -speed; // make speed a positive quantity
     reverse = 1;    // preserve the direction
   }
-  if (speed > 400)  // max
+  if (speed > 400)  // max 
     speed = 400;
-
+    
 #ifdef DRV8835MOTORSHIELD_USE_20KHZ_PWM
   OCR1A = speed;
 #else
   analogWrite(_M1PWM, speed * 51 / 80); // default to using analogWrite, mapping 400 to 255
-#endif
+#endif 
 
   if (reverse ^ _flipM1) // flip if speed was negative or _flipM1 setting is active, but not both
     digitalWrite(_M1DIR, HIGH);
@@ -115,9 +76,9 @@ void DRV8835MotorShield::setM1Speed(int speed)
 void DRV8835MotorShield::setM2Speed(int speed)
 {
   init(); // initialize if necessary
-
+    
   boolean reverse = 0;
-
+  
   if (speed < 0)
   {
     speed = -speed;  // make speed a positive quantity
@@ -125,7 +86,7 @@ void DRV8835MotorShield::setM2Speed(int speed)
   }
   if (speed > 400)  // max PWM duty cycle
     speed = 400;
-
+    
 #ifdef DRV8835MOTORSHIELD_USE_20KHZ_PWM
   OCR1B = speed;
 #else
@@ -138,7 +99,9 @@ void DRV8835MotorShield::setM2Speed(int speed)
     digitalWrite(_M2DIR, LOW);
 }
 
-void DRV8835MotorShield::setSpeeds(int m1Speed, int m2Speed) {
+// set speed for both motors
+// speed should be a number between -400 and 400
+void DRV8835MotorShield::setSpeeds(int m1Speed, int m2Speed){
   setM1Speed(m1Speed);
   setM2Speed(m2Speed);
 }
@@ -152,100 +115,3 @@ void DRV8835MotorShield::flipM2(boolean flip)
 {
   _flipM2 = flip;
 }
-
-/*
-   This example uses the DRV8835MotorShield library to drive each motor with the
-   Pololu DRV8835 Dual Motor Driver Shield for Arduino forward, then backward.
-   The yellow user LED is on when a motor is set to a positive speed and off when
-   a motor is set to a negative speed.
-*/
-DRV8835MotorShield motors;
-void go(int a){
- if (a > 30)
-  {
-    for (int speed = 0; speed <= 400; speed++)
-    {
-      motors.setM1Speed(speed);
-      Serial.write(5);
-      delay(2);
-    }
-  }
-  if (a == 2)
-  {
-    for (int speed = 400; speed >= 0; speed--)
-    {
-      motors.setM1Speed(speed);
-      delay(2);
-    }
-  }
-  // run M1 motor with negative speed
-
-  if (a == 3)
-  { for (int speed = 0; speed >= -400; speed--)
-    {
-      motors.setM1Speed(speed);
-      delay(2);
-    }
-  }
-  if (a == 4)
-  {
-    for (int speed = -400; speed <= 0; speed++)
-    {
-      motors.setM1Speed(speed);
-      delay(2);
-    }
-  }
-  // run M2 motor with positive speed
-
-  if (a == 5) {
-    for (int speed = 0; speed <= 400; speed++)
-    {
-      motors.setM2Speed(speed);
-      delay(2);
-    }
-  }
-  if (a == 6)
-  {
-    for (int speed = 400; speed >= 0; speed--)
-    {
-      motors.setM2Speed(speed);
-      delay(2);
-    }
-  }
-  // run M2 motor with negative speed
-  if (a == 7) {
-    for (int speed = 0; speed >= -400; speed--)
-    {
-      motors.setM2Speed(speed);
-
-      delay(2);
-    }
-  }
-  if (a == 8) {
-    for (int speed = -400; speed <= 0; speed++)
-    {
-      motors.setM2Speed(speed);
-      delay(2);
-    }
-  }}
-
-
-
-void setup()
-{
-  Serial.begin(9600);
-  // uncomment one or both of the following lines if your motors' directions need to be flipped
-  //motors.flipM1(true);
-  //motors.flipM2(true);
-}
-
-void loop()
-{
-  // run M1 motor with positive speed
-  int a = Serial.read();
-  Serial.write(a);
-  go(a);
-
-  delay(100);
-}
-
