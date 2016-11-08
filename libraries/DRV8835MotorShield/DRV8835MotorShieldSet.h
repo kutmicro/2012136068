@@ -138,3 +138,7 @@ void left(int i){
 	}
 	else motors.setSpeeds(0,0);
 }
+void stop()
+{
+	motors.setSpeeds(0,0);
+}

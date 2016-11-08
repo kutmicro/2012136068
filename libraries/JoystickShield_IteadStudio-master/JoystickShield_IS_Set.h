@@ -1,4 +1,4 @@
-#include "JoysickShield.h"
+#include "JoystickShield_IS.h"
 int gear;
 int Joystick_XY(){
 	int dir=0;		//방향을 나타낸다.

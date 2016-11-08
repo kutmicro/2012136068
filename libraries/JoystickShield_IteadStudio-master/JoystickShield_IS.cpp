@@ -23,7 +23,7 @@
 El 20 Abril 2014 modificado por José Augusto Pujato.
   */
 
-#include "JoystickShield.h"
+#include "JoystickShield_IS.h"
 
 /**
  * Constructor
