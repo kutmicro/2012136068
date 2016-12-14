@@ -31,7 +31,7 @@ El 20 Abril 2014 modificado por José Augusto Pujato.
  */
 JoystickShield::JoystickShield() {
     // define some threshold values. Change them if your Joystick is different
-    setThreshold(510, 530, 510, 540);
+    setThreshold(400,600, 400, 600);
 
     // Sparkfun Joystick shield connects the Joystick to Pins 0 and 1.
     // Change it if you are using a different shield
